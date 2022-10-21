@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+
+
+	  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	  <PublishSingleFile Condition="'$(Configuration)'=='Publish'">true</PublishSingleFile>
+	  <SelfContained>true</SelfContained>
+	  <PublishReadyToRun>true</PublishReadyToRun>
+	  <Configurations>Debug;Release;Publish</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Saket\Saket.Engine\Saket.Engine\Saket.Engine.csproj" />
+  </ItemGroup>
+
+
+	<ItemGroup>
+		<EmbeddedResource Include="Assets\**">
+			<LogicalName>%(Filename)%(Extension)</LogicalName>
+		</EmbeddedResource>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<EmbeddedResource Include="..\..\Saket\Saket.Engine\Saket.Engine\Assets\**">
+			<LogicalName>%(Filename)%(Extension)</LogicalName>
+		</EmbeddedResource>
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <None Remove="Assets\Textures\sheet_game.json" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <EmbeddedResource Update="Assets\Textures\sheet_game.json">
+	    <LogicalName>%(Filename)%(Extension)</LogicalName>
+	  </EmbeddedResource>
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,30 @@
+﻿using Saket.Engine;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SirSortALot
+{
+    internal struct Collider2DBox
+    {
+        public Vector2 Size;
+
+        public Collider2DBox(Vector2 size)
+        {
+            Size = size;
+        }
+
+        public static bool IntersectsWith(Collider2DBox selfBox, Transform2D selfTransform, 
+            Collider2DBox otherBox, Transform2D otherTransform)
+        {
+            return (MathF.Abs(selfTransform.Position.X - otherTransform.Position.X) < (selfBox.Size.X / 2f + otherBox.Size.X / 2f)) &&
+                    (MathF.Abs(selfTransform.Position.Y - otherTransform.Position.Y) < (selfBox.Size.Y / 2f + otherBox.Size.Y / 2f));
+        }
+
+
+    }
+}
