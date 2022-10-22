@@ -21,6 +21,8 @@ using Saket.Engine.Components;
 using SirSortALot.Components;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using NAudio.Wave;
+using System.Threading;
 
 namespace SirSortALot
 {
@@ -43,6 +45,16 @@ namespace SirSortALot
         
         protected override void OnLoad()
         {
+            /*
+            var audioFile = new AudioFileReader("Assets/Ludum Dare 38 - Track 5.wav");
+            var outputDevice = new WaveOutEvent();
+           
+            outputDevice.Init(audioFile);
+            outputDevice.Volume = 1f;
+            outputDevice.Play();*/
+           
+
+
             // Initialize Resource Manager
             {
                 resources = new ResourceManager();
@@ -113,9 +125,8 @@ namespace SirSortALot
             entity_camera.Add(new CameraOrthographic(32, 0.1f, 100f));
 
             spriteRenderer = new SpriteRenderer(1000, entity_camera, resources.Load<Shader>("sprite") );
-            
-            
-      
+           
+
             // Create level
             {
                 var background = world.CreateEntity();

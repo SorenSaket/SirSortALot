@@ -53,28 +53,34 @@ namespace SirSortALot
 
                 // ---- Decide place position ---- 
                 Vector2 placePosition = (transform_player.Position + player.direction).Round();
+
                 Entity? target = null;
                 { 
-                // If we are holding an item find nearst avaiable spot within range to place the item we are holding
-                if (player.IsHoldingItem)
-                {
-                }
-                else
-                {
-                    // else find closest item within range to pick up
-                    foreach (var entity_box in boxes)
-                    {
-                        var transform_box = entity_box.Get<Transform2D>();
-                        if ((target != null && Vector2.Distance(transform_box.Position, transform_player.Position) <
-                                Vector2.Distance(target.Value.Get<Transform2D>().Position, transform_player.Position)) ||
-
-                                (target == null && Vector2.Distance(transform_box.Position, transform_player.Position) < 2.5f))
+                    // If we are holding an item find nearst avaiable spot within range to place the item we are holding
+                    if (player.IsHoldingItem)
+                    { /*
+                        foreach (var entity_box in boxes)
                         {
-                            target = entity_box;
-                            placePosition = transform_box.Position;
+                            var transform_box = entity_box.Get<Transform2D>();
+                            
+                        }*/
+                    }
+                    else
+                    {
+                        // else find closest item within range to pick up
+                        foreach (var entity_box in boxes)
+                        {
+                            var transform_box = entity_box.Get<Transform2D>();
+                            if ((target != null && Vector2.Distance(transform_box.Position, transform_player.Position) <
+                                    Vector2.Distance(target.Value.Get<Transform2D>().Position, transform_player.Position)) ||
+
+                                    (target == null && Vector2.Distance(transform_box.Position, transform_player.Position) < 2.5f))
+                            {
+                                target = entity_box;
+                                placePosition = transform_box.Position;
+                            }
                         }
                     }
-                }
                 }
 
                 // ---- Pickup / Place ----
@@ -94,8 +100,21 @@ namespace SirSortALot
                     else
                     {
                         var entity = world.GetEntity(player.item);
-                        if (entity != null)
+                        bool IsAnyOtherBoxInPosition()
                         {
+                            foreach (var entity_box in boxes)
+                            {
+                                if(entity_box.EntityPointer == player.item)
+                                       continue;
+                                var transform_box = entity_box.Get<Transform2D>();
+                                if (transform_box.Position == placePosition)
+                                    return true;
+                            }
+                            return false;
+                        }
+                        if(entity != null && !IsAnyOtherBoxInPosition())
+                        {
+                            
                             var t = entity.Value.Get<Transform2D>();
                             t.Position = placePosition;
                             t.Scale = Vector2.One;
@@ -103,8 +122,8 @@ namespace SirSortALot
                             entity.Value.Set(new ConveyorMovable(false));
                             entity.Value.Set(new Trashable(true));
                             //entity.Value.Add(new Trashable());
-
                             player.item = EntityPointer.Default;
+                           
                         }
                     }
                 }

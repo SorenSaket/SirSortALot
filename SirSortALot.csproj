@@ -35,6 +35,14 @@
 	</ItemGroup>
 	
 	<ItemGroup>
+	  <PackageReference Include="NAudio" Version="2.1.0" />
+	  <PackageReference Include="NAudio.Core" Version="2.1.0" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <EmbeddedResource Update="Assets\Ludum Dare 38 - Track 5.wav">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </EmbeddedResource>
 	  <EmbeddedResource Update="Assets\Textures\sheet_game.json">
 	    <LogicalName>%(Filename)%(Extension)</LogicalName>
 	  </EmbeddedResource>
