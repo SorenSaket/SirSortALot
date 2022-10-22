@@ -31,16 +31,21 @@ namespace SirSortALot
 
                 foreach (var trash in tashable)
                 {
+                    var trashable = trash.Get<Trashable>();
+                    if (!trashable.IsTashable)
+                        continue;
+                    
                     var trash_transform = trash.Get<Transform2D>();
                     var trash_box = trash.Get<Collider2DBox>();
 
                     if(Collider2DBox.IntersectsWith(can_box, can_transform, trash_box, trash_transform))
                     {
-                        if(!trash.Has<Falling>())
+                        if (!trash.Has<Falling>())
+                        {
                             trash.Add(new Falling(trash_transform));
-
-                        trash_transform.Position = can_transform.Position;
-                        trash.Set(trash_transform);
+                            trash_transform.Position = can_transform.Position;
+                            trash.Set(trash_transform);
+                        }
                     }
                 }
             }

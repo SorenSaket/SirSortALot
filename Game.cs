@@ -19,6 +19,8 @@ using Saket.Engine.Resources.Databases;
 using Saket.Engine.Resources.Loaders;
 using Saket.Engine.Components;
 using SirSortALot.Components;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace SirSortALot
 {
@@ -42,21 +44,28 @@ namespace SirSortALot
         protected override void OnLoad()
         {
             // Initialize Resource Manager
-            resources = new ResourceManager();
-            resources.databases.Add(new DatabaseEmbedded(Assembly.GetExecutingAssembly()));
-            resources.RegisterLoader(new LoaderShader());
-            resources.RegisterLoader(new LoaderTexture());
-            resources.RegisterLoader(new LoaderSheet());
+            {
+                resources = new ResourceManager();
 
+                resources.databases.Add(new DatabaseEmbedded(Assembly.GetExecutingAssembly()));
+                resources.RegisterLoader(new LoaderShader());
+                resources.RegisterLoader(new LoaderTexture());
+                resources.RegisterLoader(new LoaderSheet());
+            }
+
+            ResourceKiosk kiosk = new();
             world = new World();
 
+            // Msic resources
             {
                 world.SetResource(KeyboardState);
                 world.SetResource(MouseState);
                 world.SetResource(new WindowInfo(base.Size.X, base.Size.Y));
                 world.SetResource(new ConveyourField(32,32));
+                world.SetResource(kiosk);
             }
 
+            // ---- Texture Loading
             {
                 float ppu = 256f;
 
@@ -65,29 +74,34 @@ namespace SirSortALot
                 // Game Texture
                 var tex = resources.Load<Texture>("game");
                 tex.LoadToGPU();
+                tex.UnloadFromCPU();
                 var sheet = new Sheet(8, 8, 1);
                 groups.Add(tex, sheet);
                 
                 var tex_level = resources.Load<Texture>("level");
                 tex_level.LoadToGPU();
-                var sheet_level = new Sheet(1, 1,16);
+                tex_level.UnloadFromCPU();
+                var sheet_level = new Sheet(1, 1, 32);
                 groups.Add(tex_level, sheet_level);
 
 
                 var tex_items = resources.Load<Texture>("items");
                 tex_items.LoadToGPU();
+                tex_items.UnloadFromCPU();
                 var sheet_items = new Sheet(8, 8, 1);
                 groups.Add(tex_items, sheet_items);
 
-                /*
-                var texfont = resources.Load<Texture>("font");
-                texfont.LoadToGPU();
-                var sheetfont = resources.Load<Sheet>("font");
-                groups.Add(texfont, sheetfont);*/
+                
+                var tex_font = resources.Load<Texture>("font");
+                tex_font.LoadToGPU();
+                tex_font.UnloadFromCPU();
+                var sheet_font = new Sheet(10, 10, 1);
+                groups.Add(tex_font, sheet_font);
 
                 world.SetResource(groups);
             }
 
+            // ---- Animations ---- 
             {
                 Animations anims = new Animations();
                 anims.animations.Add(new int[] {0,1,2,3,4,5});
@@ -96,7 +110,7 @@ namespace SirSortALot
 
             entity_camera = world.CreateEntity();
             entity_camera.Add(new Transform2D());
-            entity_camera.Add(new CameraOrthographic(24, 0.1f, 100f));
+            entity_camera.Add(new CameraOrthographic(32, 0.1f, 100f));
 
             spriteRenderer = new SpriteRenderer(1000, entity_camera, resources.Load<Shader>("sprite") );
             
@@ -106,60 +120,94 @@ namespace SirSortALot
             {
                 var background = world.CreateEntity();
                 background.Add(new Sprite(1, 0, int.MaxValue));
-                background.Add(new Transform2D(8, 8, -1f));
+                background.Add(new Transform2D(16.5f, 16.5f, -1f));
+
+                var Wall = world.CreateEntity();
+                Wall.Add(new Transform2D(16, 32f - 1f, -1f));
+                Wall.Add(new Collider2DBox(new Vector2(32,3)));
 
                 var trashcan = world.CreateEntity();
                 trashcan.Add(new Sprite(0, 10, int.MaxValue));
-                trashcan.Add(new Transform2D(14.5f, 14.5f, 0f));
+                trashcan.Add(new Transform2D(27f, 27f, 0f));
                 trashcan.Add(new Trashcan());
-                trashcan.Add(new Collider2DBox(Vector2.One*0.2f));
+                trashcan.Add(new Collider2DBox(Vector2.One*0.2f, true));
 
 
-                for (int i = 0; i < 13; i++)
+                for (int i = 0; i < 24; i++)
                 {
                     var teste = world.CreateEntity();
                     teste.Add(new Sprite(0, 2, int.MaxValue));
-                    teste.Add(new Transform2D(+1.5f + i, 6.5f+8f));
+                    teste.Add(new Transform2D(3f + i, 27f));
                     teste.Add(new SpriteAnimator(0, 16f));
                     teste.Add(new Conveyor(Vector2.UnitX));
                 }
 
                 {
                     var spawner = world.CreateEntity();
-                    spawner.Add(new Transform2D(0.5f, 14.5f ));
+                    spawner.Add(new Transform2D(3f, 27f));
                     spawner.Add(new BoxSpawner(0.4f));
                 }
+
+                // Spawn kiosk
+                {
+                    Vector2 position = new Vector2(16, 2);
+                    float spacing = 0.5f;
+
+
+                    Span<EntityPointer> pointers = stackalloc EntityPointer[3];
+
+                    for (int i = 0; i < pointers.Length; i++)
+                    {
+                        var entity_item = world.CreateEntity();
+                        entity_item.Add(new Transform2D(position.X- ((pointers.Length + spacing * i) / 2f) +i + spacing*i, position.Y));
+                        entity_item.Add(new Sprite(2,0,int.MaxValue));
+                        pointers[i] = entity_item.EntityPointer;
+                    }
+
+                    var entity_kiosk = world.CreateEntity();
+                    entity_kiosk.Add(new Kiosk(pointers));
+                    entity_kiosk.Add(new Transform2D(position.X, position.Y));
+                }
             }
+            
             var placePreview = world.CreateEntity();
             placePreview.Add(new Sprite(0, 6, int.MaxValue));
             placePreview.Add(new Transform2D(8, 8, 4));
+            placePreview.Add(new MoveTowards(Vector2.Zero, 16f));
 
             var player = world.CreateEntity();
             player.Add(new Sprite(0, 9, int.MaxValue));
-            player.Add(new Transform2D(8, 8));
+            player.Add(new Transform2D(8, 8,5));
             player.Add(new Player(placePreview.EntityPointer));
             player.Add(new ConveyorMovable());
-            player.Add(new Trashable());
+            //player.Add(new Trashable());
             player.Add(new Collider2DBox(Vector2.One*0.9f));
             player.Add(new Velocity());
-
+            player.Add(new MoveTowards(Vector2.Zero, 0));
 
             // Update pipeline
             pipeline_update = new();
 			Stage stage_update = new ();
+
+            stage_update.Add(kiosk.Update);
+
             stage_update.Add(Camera.CameraSystem2D);
             stage_update.Add(Camera.CameraSystemOrthographic);
+            
             stage_update.Add(Systems.Player);
 
-            
             stage_update.Add(Systems.Spawner);
+            stage_update.Add(Systems.Kiosk);
             stage_update.Add(Systems.ConveyorField);
             stage_update.Add(Systems.ConveyorMovable);
-            stage_update.Add(Systems.Falling);
+
+
             stage_update.Add(Systems.Tashing);
+
+            stage_update.Add(Systems.MoveTowards);
             stage_update.Add(Systems.Velocity);
             stage_update.Add(Systems.Camera);
-
+            stage_update.Add(Systems.Falling);
 
             pipeline_update.AddStage(stage_update);
 

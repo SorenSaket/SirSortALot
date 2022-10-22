@@ -31,7 +31,7 @@ namespace SirSortALot
                     spawner.Timer = 0;
                     Entity e = world.CreateEntity();
                     e.Add(new Sprite(2, id, int.MaxValue));
-                    e.Add(new Transform2D(2f, 14.5f, 2f));
+                    e.Add(new Transform2D(transform.Position.X, transform.Position.Y, 2f));
                     e.Add(new Box(id));
                     e.Add(new ConveyorMovable());
                     e.Add(new Trashable());

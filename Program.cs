@@ -13,6 +13,7 @@ namespace SirSortALot
 
             var game = new Game(gameWindowSettings, nativeWindowSettings);
             game.Run();
+
         }
     }
 }

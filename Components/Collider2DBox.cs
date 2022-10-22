@@ -12,10 +12,17 @@ namespace SirSortALot
     internal struct Collider2DBox
     {
         public Vector2 Size;
+        public byte flags;
 
-        public Collider2DBox(Vector2 size)
+        public bool IsTrigger => flags == 1;
+
+        public Collider2DBox(Vector2 size, bool isTrigger = false)
         {
             Size = size;
+            if (isTrigger)
+                flags = 1;
+            else
+                flags = 0;
         }
 
         public static bool IntersectsWith(Collider2DBox selfBox, Transform2D selfTransform, 

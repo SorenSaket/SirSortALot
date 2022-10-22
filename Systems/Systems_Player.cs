@@ -23,7 +23,7 @@ namespace SirSortALot
                 throw new Exception("No keyboard!");
 
             var players = world.Query(query_player);
-
+            var boxes = world.Query(query_boxTransform);
 
             foreach (var entity_player in players)
             {
@@ -34,13 +34,13 @@ namespace SirSortALot
                 // ---- Movement ----
                 Vector2 movement = new Vector2();
                 {
-                    if (keyboardState.IsKeyDown(Keys.D))
+                    if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
                         movement.X += 1;
-                    if (keyboardState.IsKeyDown(Keys.A))
+                    if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
                         movement.X -= 1;
-                    if (keyboardState.IsKeyDown(Keys.W))
+                    if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
                         movement.Y += 1;
-                    if (keyboardState.IsKeyDown(Keys.S))
+                    if (keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down))
                         movement.Y -= 1;
 
                     if (movement.LengthSquared() != 0)
@@ -58,13 +58,10 @@ namespace SirSortALot
                 // If we are holding an item find nearst avaiable spot within range to place the item we are holding
                 if (player.IsHoldingItem)
                 {
-                    // Iterate all boxes
-                    var boxes = world.Query(query_boxTransform);
                 }
                 else
                 {
                     // else find closest item within range to pick up
-                    var boxes = world.Query(query_boxTransform);
                     foreach (var entity_box in boxes)
                     {
                         var transform_box = entity_box.Get<Transform2D>();
@@ -89,6 +86,7 @@ namespace SirSortALot
                         if (target != null)
                         {
                             target.Value.Set(new ConveyorMovable(true));
+                            target.Value.Set(new Trashable(false));
                             player.item = target.Value.EntityPointer;
                         }
                     }
@@ -103,6 +101,9 @@ namespace SirSortALot
                             t.Scale = Vector2.One;
                             entity.Value.Set(t);
                             entity.Value.Set(new ConveyorMovable(false));
+                            entity.Value.Set(new Trashable(true));
+                            //entity.Value.Add(new Trashable());
+
                             player.item = EntityPointer.Default;
                         }
                     }
@@ -112,12 +113,25 @@ namespace SirSortALot
                 // ---- Move place preview ----
                 {
                     Entity entity_placer = world.GetEntity(player.placePreview).GetValueOrDefault();
+                    var sprite_placer = entity_placer.Get<Sprite>();
+                    var moveTowards_placer = entity_placer.Get<MoveTowards>();
+                    var transform_placer = entity_placer.Get<Transform2D>();
 
+                    if (target != null)
                     {
-                        var transform_placer = entity_placer.Get<Transform2D>();
-                        transform_placer.Position = placePosition;
+                        moveTowards_placer.Target = placePosition;
+                        sprite_placer.color = uint.MaxValue;
+                    }
+                    else
+                    {
+                        sprite_placer.color = uint.MinValue;
+                        transform_placer.Position = transform_player.Position;
+                        moveTowards_placer.Target = transform_player.Position;
                         entity_placer.Set(transform_placer);
                     }
+                    entity_placer.Set(sprite_placer);
+                    entity_placer.Set(moveTowards_placer);
+
                 }
 
 
@@ -148,18 +162,50 @@ namespace SirSortALot
                         continue;
 
                     var collider = item.Get<Collider2DBox>();
+
+                    if (collider.IsTrigger)
+                        continue;
+
                     var transform_collider = item.Get<Transform2D>();
 
                     if(Collider2DBox.IntersectsWith(collider_player, transform_player, collider, transform_collider))
                     {
-                        Vector2 relativePosition = (transform_collider.Position-player.lastPos);
-
-                        Vector2 normal = Utils.RectNormal(relativePosition);
-                        targetVelocity -=( normal ) * 5f;
+                        if(collider.Size.X == collider.Size.Y)
+                        {
+                            Vector2 relativePosition = (transform_collider.Position - player.lastPos);
+                            targetVelocity -= (Vector2.Normalize(relativePosition)) * 5f;
+                        }
+                        else
+                        {
+                            Vector2 relativePosition = (transform_collider.Position - player.lastPos) / (collider.Size/2f);
+                            Vector2 normal = Utils.RectNormal(relativePosition);
+                            targetVelocity -= normal * 5f;
+                        }
+                      
                     }
                 }
+                
                 player.lastPos = transform_player.Position;
+               /*
+                if (entity_player.Get<MoveTowards>().speed != 0 && targetVelocity.Length() > 0f)
+                {
+                    entity_player.Set(new MoveTowards(transform_player.Position + Vector2.Normalize(targetVelocity) * 0.1f, 20));
+                }
+                else
+                {
+                    
+                }*/
                 entity_player.Set(new Velocity(targetVelocity));
+                /*
+                if()
+                entity_player.Set(new MoveTowards(Vector2.Zero, 0));
+                    else
+                {
+                    entity_player.Set(new MoveTowards((transform_player.Position + player.direction * 0.33f).Round(), 20));
+                }*/
+
+
+
                 entity_player.Set(player);
             }
 
