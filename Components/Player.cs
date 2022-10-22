@@ -19,19 +19,13 @@ namespace SirSortALot
         public Vector2 direction;
         public EntityPointer placePreview;
         public EntityPointer item;
+        public float dashTimer;
 
         public bool IsHoldingItem => item != EntityPointer.Default;
 
-        public Player() 
-        {
-            lastPos = Vector2.Zero;
-            direction = Vector2.Zero;
-            placePreview = EntityPointer.Default;
-            item = EntityPointer.Default;
-        }
-
         public Player(EntityPointer placePreview) 
         {
+            dashTimer = 0;
             lastPos = Vector2.Zero;
             direction = Vector2.Zero;
             this.placePreview = placePreview;

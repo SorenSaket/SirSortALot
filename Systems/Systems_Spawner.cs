@@ -16,6 +16,9 @@ namespace SirSortALot
 
         public static void Spawner(World world)
         {
+            if (!world.HasResource(out ResourceKiosk resourceKiosk))
+                return;
+
             var entities = world.Query(query_Spawner);
 
             foreach (var entity in entities)
@@ -27,7 +30,9 @@ namespace SirSortALot
 
                 if(spawner.Timer >= 1f)
                 {
-                    int id = random.Next(24);
+                    int id = GetNextItemID(resourceKiosk);
+
+
                     spawner.Timer = 0;
                     Entity e = world.CreateEntity();
                     e.Add(new Sprite(2, id, int.MaxValue));
@@ -40,7 +45,38 @@ namespace SirSortALot
 
                 entity.Set(spawner);
             }
-
         }
+
+        private static int GetNextItemID(ResourceKiosk resourceKiosk)
+        {
+            const float relaventChangeMultiplier = 1f;
+            int id = random.Next(24);
+
+            int maxRegens = ConvertChanceToCount(relaventChangeMultiplier);
+
+
+            for (int i = 0; i < maxRegens; i++)
+            {
+                if (resourceKiosk.orders.Any(x => x.ID == id))
+                    return id;
+                id = random.Next(24);
+            }
+
+            return id;
+        }
+
+
+        private static int ConvertChanceToCount(float chance)
+        {
+
+            int whole = (int)chance;
+            float remainer = chance - whole;
+
+            if (random.NextSingle() < remainer)
+                return whole + 1;
+            else
+                return whole;
+        }
+
     }
 }

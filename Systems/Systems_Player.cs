@@ -1,7 +1,6 @@
 ﻿using OpenTK.Windowing.GraphicsLibraryFramework;
 using Saket.ECS;
 using Saket.Engine;
-using SirSortALot.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +29,10 @@ namespace SirSortALot
                 var transform_player = entity_player.Get<Transform2D>();
                 var player = entity_player.Get<Player>();
                 var collider_player = entity_player.Get<Collider2DBox>();
+                var player_velocity = entity_player.Get<Velocity>();
+
+
+                player.dashTimer -= world.Delta;
 
                 // ---- Movement ----
                 Vector2 movement = new Vector2();
@@ -84,7 +87,7 @@ namespace SirSortALot
                 }
 
                 // ---- Pickup / Place ----
-                if (keyboardState.IsKeyPressed(Keys.Space))
+                if (keyboardState.IsKeyPressed(Keys.Space) || keyboardState.IsKeyPressed(Keys.Z))
                 {
                     // Try to pick up
                     if (player.item == EntityPointer.Default)
@@ -169,7 +172,17 @@ namespace SirSortALot
 
 
                 // ---- Apply position ---- 
-                Vector2 targetVelocity = ((movement) * 5f);
+                Vector2 targetVelocity = ((movement));
+
+
+                // Dash
+                if((keyboardState.IsKeyDown(Keys.LeftShift) || keyboardState.IsKeyDown(Keys.X)) && player.dashTimer <= 0)
+                {
+                    targetVelocity *= 16;
+                    player.dashTimer = 1f;
+                }
+
+
 
                 // If player would collide with another object return to original position
                 var colliders = world.Query(query_colliderTransform);
@@ -205,16 +218,19 @@ namespace SirSortALot
                 }
                 
                 player.lastPos = transform_player.Position;
-               /*
-                if (entity_player.Get<MoveTowards>().speed != 0 && targetVelocity.Length() > 0f)
-                {
-                    entity_player.Set(new MoveTowards(transform_player.Position + Vector2.Normalize(targetVelocity) * 0.1f, 20));
-                }
-                else
-                {
-                    
-                }*/
-                entity_player.Set(new Velocity(targetVelocity));
+
+                /*
+                 if (entity_player.Get<MoveTowards>().speed != 0 && targetVelocity.Length() > 0f)
+                 {
+                     entity_player.Set(new MoveTowards(transform_player.Position + Vector2.Normalize(targetVelocity) * 0.1f, 20));
+                 }
+                 else
+                 {
+
+                 }*/
+                player_velocity += targetVelocity;
+
+
                 /*
                 if()
                 entity_player.Set(new MoveTowards(Vector2.Zero, 0));
@@ -224,7 +240,7 @@ namespace SirSortALot
                 }*/
 
 
-
+                entity_player.Set(player_velocity);
                 entity_player.Set(player);
             }
 

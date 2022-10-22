@@ -18,7 +18,6 @@ using Saket.Engine;
 using Saket.Engine.Resources.Databases;
 using Saket.Engine.Resources.Loaders;
 using Saket.Engine.Components;
-using SirSortALot.Components;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using NAudio.Wave;
@@ -195,6 +194,8 @@ namespace SirSortALot
             player.Add(new Collider2DBox(Vector2.One*0.9f));
             player.Add(new Velocity());
             player.Add(new MoveTowards(Vector2.Zero, 0));
+            player.Add(new Friction(8f));
+
 
             // Update pipeline
             pipeline_update = new();
@@ -216,7 +217,10 @@ namespace SirSortALot
             stage_update.Add(Systems.Tashing);
 
             stage_update.Add(Systems.MoveTowards);
+
+            stage_update.Add(Systems.Friction);
             stage_update.Add(Systems.Velocity);
+
             stage_update.Add(Systems.Camera);
             stage_update.Add(Systems.Falling);
 
