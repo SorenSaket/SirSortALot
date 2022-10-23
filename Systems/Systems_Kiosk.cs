@@ -19,7 +19,7 @@ namespace SirSortALot
 
         public static void Kiosk(World world)
         {
-            if (!world.HasResource(out ResourceKiosk resourceKiosk))
+            if (!world.TryGetResource(out ResourceKiosk resourceKiosk))
                 return;
 
             var entities = world.Query(query_kisok);
@@ -34,7 +34,7 @@ namespace SirSortALot
                 // Update the sprites to match orders
                 for (int i = 0; i < 3; i++)
                 {
-                    var entity_sprite = world.GetEntity(kiosk[i]).GetValueOrDefault();
+                    var entity_sprite = world.GetEntity(kiosk[i]);
                     var sprite_sprite = entity_sprite.Get<Sprite>();
 
                     if(i >= resourceKiosk.orders.Count)
@@ -60,7 +60,7 @@ namespace SirSortALot
                     {
                         if (player.IsHoldingItem)
                         {
-                            var entity_item = world.GetEntity(player.item).GetValueOrDefault();
+                            var entity_item = world.GetEntity(player.item);
                             var item = entity_item.Get<Box>();
 
                             if (resourceKiosk.orders.FirstOrFalse(x =>x.ID == item.id, out var order))

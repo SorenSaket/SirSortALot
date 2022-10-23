@@ -9,6 +9,7 @@
 	<PublishSingleFile Condition="'$(Configuration)'=='Publish'">true</PublishSingleFile>
 	<SelfContained>true</SelfContained>
 	<PublishReadyToRun>true</PublishReadyToRun>
+	<ApplicationIcon>sirsortalot.ico</ApplicationIcon>
 	  
 	  
   </PropertyGroup>
@@ -32,6 +33,10 @@
 	
 	<ItemGroup>
 	  <None Remove="Assets\Textures\sheet_game.json" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <Content Include="sirsortalot.ico" />
 	</ItemGroup>
 	
 	<ItemGroup>

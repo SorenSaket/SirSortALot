@@ -18,7 +18,7 @@ namespace SirSortALot
 
         public static void Player(World world)
         {
-            if (!world.HasResource(out KeyboardState keyboardState))
+            if (!world.TryGetResource(out KeyboardState keyboardState))
                 throw new Exception("No keyboard!");
 
             var players = world.Query(query_player);
@@ -102,7 +102,6 @@ namespace SirSortALot
                     // Try Release
                     else
                     {
-                        var entity = world.GetEntity(player.item);
                         bool IsAnyOtherBoxInPosition()
                         {
                             foreach (var entity_box in boxes)
@@ -115,15 +114,15 @@ namespace SirSortALot
                             }
                             return false;
                         }
-                        if(entity != null && !IsAnyOtherBoxInPosition())
+                        if(world.TryGetEntity(player.item, out var entity) && !IsAnyOtherBoxInPosition())
                         {
                             
-                            var t = entity.Value.Get<Transform2D>();
+                            var t = entity.Get<Transform2D>();
                             t.Position = placePosition;
                             t.Scale = Vector2.One;
-                            entity.Value.Set(t);
-                            entity.Value.Set(new ConveyorMovable(false));
-                            entity.Value.Set(new Trashable(true));
+                            entity.Set(t);
+                            entity.Set(new ConveyorMovable(false));
+                            entity.Set(new Trashable(true));
                             //entity.Value.Add(new Trashable());
                             player.item = EntityPointer.Default;
                            
@@ -134,7 +133,7 @@ namespace SirSortALot
 
                 // ---- Move place preview ----
                 {
-                    Entity entity_placer = world.GetEntity(player.placePreview).GetValueOrDefault();
+                    Entity entity_placer = world.GetEntity(player.placePreview);
                     var sprite_placer = entity_placer.Get<Sprite>();
                     var moveTowards_placer = entity_placer.Get<MoveTowards>();
                     var transform_placer = entity_placer.Get<Transform2D>();
@@ -160,13 +159,12 @@ namespace SirSortALot
                 // ---- Move item ----
                 if (player.item != EntityPointer.Default)
                 {
-                    var entity = world.GetEntity(player.item);
-                    if (entity != null)
+                    if (world.TryGetEntity(player.item, out var entity))
                     {
-                        var t = entity.Value.Get<Transform2D>();
+                        var t = entity.Get<Transform2D>();
                         t.Position = placePosition;
                         t.Scale = Vector2.One * +0.7f;
-                        entity.Value.Set(t);
+                        entity.Set(t);
                     }
                 }
 
@@ -181,8 +179,6 @@ namespace SirSortALot
                     targetVelocity *= 16;
                     player.dashTimer = 1f;
                 }
-
-
 
                 // If player would collide with another object return to original position
                 var colliders = world.Query(query_colliderTransform);
@@ -205,13 +201,13 @@ namespace SirSortALot
                         if(collider.Size.X == collider.Size.Y)
                         {
                             Vector2 relativePosition = (transform_collider.Position - player.lastPos);
-                            targetVelocity -= (Vector2.Normalize(relativePosition)) * 5f;
+                            targetVelocity -= (Vector2.Normalize(relativePosition) * 1.8f);
                         }
                         else
                         {
                             Vector2 relativePosition = (transform_collider.Position - player.lastPos) / (collider.Size/2f);
                             Vector2 normal = Utils.RectNormal(relativePosition);
-                            targetVelocity -= normal * 5f;
+                            targetVelocity -= normal * 1.8f;
                         }
                       
                     }

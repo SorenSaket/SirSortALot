@@ -16,7 +16,7 @@ namespace SirSortALot
 
         public static void Tashing(World world)
         {
-            if (!world.HasResource(out KeyboardState keyboardState))
+            if (!world.TryGetResource(out KeyboardState keyboardState))
                 return;
 
             var tashcans = world.Query(query_tashcanTransform);

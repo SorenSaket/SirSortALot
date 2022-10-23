@@ -16,7 +16,7 @@ namespace SirSortALot
 
         public static void Spawner(World world)
         {
-            if (!world.HasResource(out ResourceKiosk resourceKiosk))
+            if (!world.TryGetResource(out ResourceKiosk resourceKiosk))
                 return;
 
             var entities = world.Query(query_Spawner);
