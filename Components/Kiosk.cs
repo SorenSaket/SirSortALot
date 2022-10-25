@@ -17,11 +17,11 @@ namespace SirSortALot
         // Marhsal is not an option either because it would have to use a managed array
         // (components must be fully unmanaged)
 
-        public EntityPointer sprite1 = EntityPointer.Default;
-        public EntityPointer sprite2 = EntityPointer.Default;
-        public EntityPointer sprite3 = EntityPointer.Default;
+        public ECSPointer sprite1 = ECSPointer.Default;
+        public ECSPointer sprite2 = ECSPointer.Default;
+        public ECSPointer sprite3 = ECSPointer.Default;
 
-        public EntityPointer this[int i]
+        public ECSPointer this[int i]
         {
             get {
                 switch (i)
@@ -54,7 +54,7 @@ namespace SirSortALot
             }
         }
 
-        public Kiosk(Span<EntityPointer> sprites) 
+        public Kiosk(Span<ECSPointer> sprites) 
         {
             for (int i = 0; i < sprites.Length; i++)
             {

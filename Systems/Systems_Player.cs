@@ -90,7 +90,7 @@ namespace SirSortALot
                 if (keyboardState.IsKeyPressed(Keys.Space) || keyboardState.IsKeyPressed(Keys.Z))
                 {
                     // Try to pick up
-                    if (player.item == EntityPointer.Default)
+                    if (player.item == ECSPointer.Default)
                     {
                         if (target != null)
                         {
@@ -124,7 +124,7 @@ namespace SirSortALot
                             entity.Set(new ConveyorMovable(false));
                             entity.Set(new Trashable(true));
                             //entity.Value.Add(new Trashable());
-                            player.item = EntityPointer.Default;
+                            player.item = ECSPointer.Default;
                            
                         }
                     }
@@ -157,7 +157,7 @@ namespace SirSortALot
 
 
                 // ---- Move item ----
-                if (player.item != EntityPointer.Default)
+                if (player.item != ECSPointer.Default)
                 {
                     if (world.TryGetEntity(player.item, out var entity))
                     {

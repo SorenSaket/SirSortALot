@@ -43,8 +43,8 @@ namespace SirSortALot
         }
         
         protected override void OnLoad()
-        {
-            /*
+        {/*
+            
             var audioFile = new AudioFileReader("Assets/Ludum Dare 38 - Track 5.wav");
             var outputDevice = new WaveOutEvent();
            
@@ -164,7 +164,7 @@ namespace SirSortALot
                     float spacing = 0.5f;
 
 
-                    Span<EntityPointer> pointers = stackalloc EntityPointer[3];
+                    Span<ECSPointer> pointers = stackalloc ECSPointer[3];
 
                     for (int i = 0; i < pointers.Length; i++)
                     {

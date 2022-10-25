@@ -11,7 +11,7 @@ namespace SirSortALot
     {
         public int Score { get; set; }
 
-        public List<EntityPointer> letters = new();
+        public List<ECSPointer> letters = new();
 
         public void Update(World world)
         {

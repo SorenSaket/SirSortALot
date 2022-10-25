@@ -16,19 +16,19 @@ namespace SirSortALot
     {
         public Vector2 lastPos;
         public Vector2 direction;
-        public EntityPointer placePreview;
-        public EntityPointer item;
+        public ECSPointer placePreview;
+        public ECSPointer item;
         public float dashTimer;
 
-        public bool IsHoldingItem => item != EntityPointer.Default;
+        public bool IsHoldingItem => item != ECSPointer.Default;
 
-        public Player(EntityPointer placePreview) 
+        public Player(ECSPointer placePreview) 
         {
             dashTimer = 0;
             lastPos = Vector2.Zero;
             direction = Vector2.Zero;
             this.placePreview = placePreview;
-            item = EntityPointer.Default;
+            item = ECSPointer.Default;
         }
     }
 }

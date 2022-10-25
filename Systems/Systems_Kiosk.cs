@@ -67,7 +67,7 @@ namespace SirSortALot
                             {
                                 resourceKiosk.orders.Remove(order);
                                 entity_item.Destroy();
-                                player.item = EntityPointer.Default;
+                                player.item = ECSPointer.Default;
                             }
                         }
                         entity_player.Set(player);
